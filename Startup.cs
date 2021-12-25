@@ -5,12 +5,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System.Collections.Generic;
 using Movies.Models;
 
 namespace Movies
 {
     public class Startup
     {
+        private const string APIKEYNAME = "ApiKey";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -23,11 +25,39 @@ namespace Movies
         {
 
             services.AddControllers();
-            services.AddDbContext<MovieContext>(opt => opt.UseInMemoryDatabase("MoviesList"));
+            services.AddDbContext<MovieContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("MovieContext"));
+                options.EnableSensitiveDataLogging();
+            });
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Movies", Version = "v1" });
+
+                c.AddSecurityDefinition(APIKEYNAME, new OpenApiSecurityScheme()
+                {
+                    In = ParameterLocation.Header,
+                    Name = APIKEYNAME,
+                    Type = SecuritySchemeType.ApiKey,
+                    Description = "Prosze podaæ zakupiony klucz do API."
+                });
+
+                var key = new OpenApiSecurityScheme()
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = APIKEYNAME
+                    },
+                    In = ParameterLocation.Header
+                };
+
+                var requirement = new OpenApiSecurityRequirement
+                    { { key, new List<string>() }};
+
+                c.AddSecurityRequirement(requirement);
+
             });
         }
 

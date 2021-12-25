@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Movies.Models;
+using Movies.Attributes;
 
 namespace Movies.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiKey]
     public class MoviesController : ControllerBase
     {
         private readonly MovieContext _context;
@@ -22,7 +24,6 @@ namespace Movies.Controllers
 
         // GET: api/Movies
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<MovieItem>>> GetMovieItems()
         {
             return await _context.MovieItems.ToListAsync();
@@ -30,7 +31,6 @@ namespace Movies.Controllers
 
         // GET: api/Movies/5
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<MovieItem>> GetMovieItem(long id)
         {
             var movieItem = await _context.MovieItems.FindAsync(id);
@@ -46,7 +46,6 @@ namespace Movies.Controllers
         // PUT: api/Movies/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> PutMovieItem(long id, MovieItem movieItem)
         {
             if (id != movieItem.Id)
@@ -78,7 +77,6 @@ namespace Movies.Controllers
         // POST: api/Movies
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<MovieItem>> PostMovieItem(MovieItem movieItem)
         {
             _context.MovieItems.Add(movieItem);
@@ -89,7 +87,6 @@ namespace Movies.Controllers
 
         // DELETE: api/Movies/5
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteMovieItem(long id)
         {
             var movieItem = await _context.MovieItems.FindAsync(id);
